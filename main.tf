@@ -80,9 +80,9 @@ resource "azuread_application" "this" {
 }
 
 resource "azuread_service_principal" "this" {
-  count          = local.create_sa ? 1 : 0
+  count     = local.create_sa ? 1 : 0
 
-  application_id = azuread_application.this[0].client_id
+  client_id = azuread_application.this[0].client_id
   owners = [
     data.azuread_client_config.current.object_id,
   ]
@@ -108,7 +108,7 @@ resource "volterra_cloud_credentials" "this" {
   name      = var.name
   namespace = "system"
   azure_client_secret {
-    client_id = local.create_sa ? azuread_application.this[0].application_id : var.azure_client_id
+    client_id = local.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
     client_secret {
         clear_secret_info {
             url = "string:///${base64encode(local.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret)}"

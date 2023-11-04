@@ -9,7 +9,7 @@ output "azure_tenant_id" {
 }
 
 output "azure_client_id" {
-  value       = local.create_sa ? azuread_application.this[0].application_id : var.azure_client_id
+  value       = local.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
   description = "Azure Service Principal Application ID"
 }
 
