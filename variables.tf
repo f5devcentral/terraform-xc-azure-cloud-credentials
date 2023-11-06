@@ -39,7 +39,7 @@ variable "end_date_relative" {
   description = "A relative duration for which the password is valid until, for example 240h (10 days) or 2400h30m. Changing this field forces a new resource to be created."
   type        = string
   sensitive   = true
-  default     = "1y"
+  default     = "8766h"
 }
 
 variable "end_date" {
