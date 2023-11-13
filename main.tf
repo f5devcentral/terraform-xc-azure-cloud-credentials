@@ -1,13 +1,9 @@
-locals {
-  create_sa = var.azure_subscription_id == null || var.azure_tenant_id == null || var.azure_client_secret == null || var.azure_client_id == null
-}
-
 data "azuread_client_config" "current" {}
 
 data "azurerm_subscription" "primary" {}
 
 resource "azurerm_role_definition" "this" {
-  count       = local.create_sa ? 1 : 0
+  count       = var.create_sa ? 1 : 0
 
   name        = var.name
   scope       = data.azurerm_subscription.primary.id
@@ -71,7 +67,7 @@ resource "azurerm_role_definition" "this" {
 }
 
 resource "azuread_application" "this" {
-  count        = local.create_sa ? 1 : 0
+  count        = var.create_sa ? 1 : 0
 
   display_name = var.name
   owners = [
@@ -80,7 +76,7 @@ resource "azuread_application" "this" {
 }
 
 resource "azuread_service_principal" "this" {
-  count     = local.create_sa ? 1 : 0
+  count     = var.create_sa ? 1 : 0
 
   client_id = azuread_application.this[0].client_id
   owners = [
@@ -89,7 +85,7 @@ resource "azuread_service_principal" "this" {
 }
 
 resource "azuread_service_principal_password" "this" {
-  count                = local.create_sa ? 1 : 0
+  count                = var.create_sa ? 1 : 0
 
   service_principal_id = azuread_service_principal.this[0].id
   end_date_relative    = var.end_date_relative
@@ -97,7 +93,7 @@ resource "azuread_service_principal_password" "this" {
 }
 
 resource "azurerm_role_assignment" "this" {
-  count                = local.create_sa ? 1 : 0
+  count                = var.create_sa ? 1 : 0
 
   scope                = data.azurerm_subscription.primary.id
   role_definition_id   = azurerm_role_definition.this[0].role_definition_resource_id
@@ -108,13 +104,13 @@ resource "volterra_cloud_credentials" "this" {
   name      = var.name
   namespace = "system"
   azure_client_secret {
-    client_id = local.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
+    client_id = var.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
     client_secret {
         clear_secret_info {
-            url = "string:///${base64encode(local.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret)}"
+            url = "string:///${base64encode(var.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret)}"
         }
     }
-    subscription_id = local.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
-    tenant_id       = local.create_sa ? data.azuread_client_config.current.tenant_id : var.azure_tenant_id
+    subscription_id = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
+    tenant_id       = var.create_sa ? data.azuread_client_config.current.tenant_id : var.azure_tenant_id
   }
 }

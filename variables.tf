@@ -10,6 +10,12 @@ variable "name" {
   default     = ""
 }
 
+variable "create_sa" {
+  description = "Create a new Service Principal"
+  type        = bool
+  default     = false
+}
+
 variable "azure_subscription_id" {
   description = "Existing Azure Subscription ID"
   type        = string

@@ -1,32 +1,37 @@
 output "azure_subscription_id" {
-  value       = local.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
+  value       = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
+  sensitive   = true
   description = "Azure Subscription ID"
 }
 
 output "azure_tenant_id" {
-  value       = local.create_sa ? data.azuread_client_config.current.tenant_id : var.azure_tenant_id
+  value       = var.create_sa ? data.azuread_client_config.current.tenant_id : var.azure_tenant_id
+  sensitive   = true
   description = "Azure Tenant ID"
 }
 
 output "azure_client_id" {
-  value       = local.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
-  description = "Azure Service Principal Application ID"
+  value       = var.create_sa ? azuread_application.this[0].client_id : null
+  sensitive   = true
+  description = "Created Azure Service Principal Application ID"
 }
 
 output "azure_client_secret" {
-  value       = local.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret
+  value       = var.create_sa ? azuread_service_principal_password.this[0].value : null
   sensitive   = true
-  description = "Azure Service Principal Password"
+  description = "Created Azure Service Principal Password"
 }
 
 output "azure_role_definition_resource_id" {
-  value       = local.create_sa ? azurerm_role_definition.this[0].role_definition_resource_id : null
-  description = "Azure Service Principal Password"
+  value       = var.create_sa ? azurerm_role_definition.this[0].role_definition_resource_id : null
+  sensitive   = true
+  description = "Created Azure Role Definition Resource ID"
 }
 
 output "azure_service_principal_id" {
-  value       = local.create_sa ? azuread_service_principal.this[0].id : null
-  description = "Azure Service Principal ID"
+  value       = var.create_sa ? azuread_service_principal.this[0].id : null
+  sensitive   = true
+  description = "Created Azure Service Principal ID"
 }
 
 output "name" {

@@ -19,5 +19,6 @@ module "azure_cloud_credentials" {
   source            = "../.."
 
   name              = "azure-tf-demo-creds"
+  create_sa         = true
   end_date_relative = "10h"
 }

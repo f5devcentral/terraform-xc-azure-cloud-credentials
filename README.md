@@ -18,7 +18,7 @@ To use this module and leverage your existing credentials without provisioning a
 ```hcl
 module "azure_cloud_credentials" {
   source  = "f5devcentral/azure-cloud-credentials/xc"
-  version = "0.0.3"
+  version = "0.0.6"
 
   name                  = "azure-tf-demo-creds"
   azure_subscription_id = "your_azure_subscription_id"
@@ -33,9 +33,10 @@ If you want to create a new Azure Service Principal
 ```hcl
 module "azure_cloud_credentials" {
   source  = "f5devcentral/azure-cloud-credentials/xc"
-  version = "0.0.3"
+  version = "0.0.6"
 
   name              = "azure-tf-demo-creds"
+  create_sa         = true
   end_date_relative = "10d"
 }
 ```
