@@ -42,14 +42,14 @@ variable "azure_client_id" {
 }
 
 variable "end_date_relative" {
-  description = "A relative duration for which the password is valid until, for example 240h (10 days) or 2400h30m. Changing this field forces a new resource to be created."
+  description = "[DEPRECATED] Relative duration for which the password is valid (e.g. 240h or 2400h30m). Prefer using end_date. If provided, it will be converted to an absolute end_date internally."
   type        = string
   sensitive   = true
-  default     = "8766h"
+  default     = null
 }
 
 variable "end_date" {
-  description = " The end date until which the password is valid, formatted as an RFC3339 date string (e.g. 2018-01-01T01:02:03Z). Changing this field forces a new resource to be created."
+  description = "The absolute end date until which the password is valid, formatted as an RFC3339 date string (e.g. 2218-01-01T01:02:03Z). Changing this field forces a new resource to be created."
   type        = string
   sensitive   = true
   default     = null

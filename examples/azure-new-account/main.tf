@@ -7,8 +7,8 @@ provider "azurerm" {
   features {}
   skip_provider_registration = "true"
 
-  subscription_id   = var.azure_subscription_id
-  tenant_id         = var.azure_tenant_id
+  subscription_id = var.azure_subscription_id
+  tenant_id       = var.azure_tenant_id
 }
 
 provider "azuread" {
@@ -16,9 +16,10 @@ provider "azuread" {
 }
 
 module "azure_cloud_credentials" {
-  source            = "../.."
+  source = "../.."
 
-  name              = "azure-tf-demo-creds"
-  create_sa         = true
-  end_date_relative = "10h"
+  name      = "azure-tf-demo-creds"
+  create_sa = true
+  # Set an absolute end date for the SP password (RFC3339). Example: 10 hours from now
+  end_date = timeadd(timestamp(), "10h")
 }

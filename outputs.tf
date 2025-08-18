@@ -1,5 +1,5 @@
 output "azure_subscription_id" {
-  value       = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
+  value       = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "") : var.azure_subscription_id
   sensitive   = true
   description = "Azure Subscription ID"
 }

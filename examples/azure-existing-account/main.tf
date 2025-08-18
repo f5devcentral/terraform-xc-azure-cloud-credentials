@@ -7,8 +7,8 @@ provider "azurerm" {
   features {}
   skip_provider_registration = "true"
 
-  subscription_id   = var.azure_subscription_id
-  tenant_id         = var.azure_tenant_id
+  subscription_id = var.azure_subscription_id
+  tenant_id       = var.azure_tenant_id
 }
 
 provider "azuread" {
@@ -16,7 +16,7 @@ provider "azuread" {
 }
 
 module "azure_cloud_credentials" {
-  source                = "../.."
+  source = "../.."
 
   name                  = "azure-tf-demo-creds"
   azure_subscription_id = var.azure_subscription_id

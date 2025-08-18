@@ -4,11 +4,11 @@ This Terraform module provisions Azure Cloud Credentials in F5 Distributed Cloud
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](https://github.com/hashicorp/terraform) | >= 1.0 |
-| <a name="requirement_azurerm"></a> [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | >= 3.0 |
-| <a name="requirement_azuread"></a> [azuread](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs) | >= 2.0 |
+| Name                                                                                                                 | Version    |
+| -------------------------------------------------------------------------------------------------------------------- | ---------- |
+| <a name="requirement_terraform"></a> [terraform](https://github.com/hashicorp/terraform)                             | >= 1.0     |
+| <a name="requirement_azurerm"></a> [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)  | >= 3.0     |
+| <a name="requirement_azuread"></a> [azuread](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs)  | >= 2.0     |
 | <a name="requirement_volterra"></a> [volterra](https://registry.terraform.io/providers/volterraedge/volterra/latest) | >= 0.11.26 |
 
 ## Usage
@@ -35,10 +35,13 @@ module "azure_cloud_credentials" {
   source  = "f5devcentral/azure-cloud-credentials/xc"
   version = "0.0.6"
 
-  name              = "azure-tf-demo-creds"
-  create_sa         = true
-  end_date_relative = "10d"
+  name      = "azure-tf-demo-creds"
+  create_sa = true
+  # Set an absolute end date for the password. Example below sets it to 10 days from now.
+  end_date  = timeadd(timestamp(), "240h")
 }
+
+Note: The input end_date_relative is deprecated. Use end_date instead. If end_date_relative is provided, the module will convert it to an absolute end_date internally for backward compatibility.
 ```
 
 ## Contributing

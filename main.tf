@@ -2,8 +2,19 @@ data "azuread_client_config" "current" {}
 
 data "azurerm_subscription" "primary" {}
 
+locals {
+  # Compute an absolute end date for the SP password.
+  # Prefer an explicit end_date if provided; otherwise, if a relative duration is provided, add it to now.
+  # Falls back to one year (8766h) if neither is set.
+  sp_password_end_date = (
+    var.end_date != null ? var.end_date : (
+      var.end_date_relative != null ? timeadd(timestamp(), var.end_date_relative) : timeadd(timestamp(), "8766h")
+    )
+  )
+}
+
 resource "azurerm_role_definition" "this" {
-  count       = var.create_sa ? 1 : 0
+  count = var.create_sa ? 1 : 0
 
   name        = var.name
   scope       = data.azurerm_subscription.primary.id
@@ -13,18 +24,23 @@ resource "azurerm_role_definition" "this" {
     actions = [
       "*/read",
       "*/register/action",
-      "Microsoft.Authorization/roleAssignments/*",
       "Microsoft.Compute/disks/delete",
+      "Microsoft.Compute/skus/read",
       "Microsoft.Compute/virtualMachineScaleSets/delete",
       "Microsoft.Compute/virtualMachineScaleSets/write",
       "Microsoft.Compute/virtualMachines/delete",
       "Microsoft.Compute/virtualMachines/write",
-      "Microsoft.Marketplace/offerTypes/publishers/offers/plans/agreements/*",
       "Microsoft.MarketplaceOrdering/agreements/offers/plans/cancel/action",
       "Microsoft.MarketplaceOrdering/offerTypes/publishers/offers/plans/agreements/write",
-      "Microsoft.Network/loadBalancers/*",
+      "Microsoft.Network/loadBalancers/backendAddressPools/delete",
+      "Microsoft.Network/loadBalancers/backendAddressPools/join/action",
+      "Microsoft.Network/loadBalancers/backendAddressPools/write",
+      "Microsoft.Network/loadBalancers/delete",
+      "Microsoft.Network/loadBalancers/write",
       "Microsoft.Network/locations/setLoadBalancerFrontendPublicIpAddresses/action",
-      "Microsoft.Network/networkInterfaces/*",
+      "Microsoft.Network/networkInterfaces/delete",
+      "Microsoft.Network/networkInterfaces/join/action",
+      "Microsoft.Network/networkInterfaces/write",
       "Microsoft.Network/networkSecurityGroups/delete",
       "Microsoft.Network/networkSecurityGroups/join/action",
       "Microsoft.Network/networkSecurityGroups/securityRules/delete",
@@ -36,8 +52,6 @@ resource "azurerm_role_definition" "this" {
       "Microsoft.Network/routeTables/delete",
       "Microsoft.Network/routeTables/join/action",
       "Microsoft.Network/routeTables/write",
-      "Microsoft.Network/routeTables/routes/write",
-      "Microsoft.Network/routeTables/routes/delete",
       "Microsoft.Network/virtualHubs/delete",
       "Microsoft.Network/virtualHubs/bgpConnections/delete",
       "Microsoft.Network/virtualHubs/bgpConnections/read",
@@ -49,14 +63,22 @@ resource "azurerm_role_definition" "this" {
       "Microsoft.Network/virtualHubs/write",
       "Microsoft.Network/virtualNetworks/delete",
       "Microsoft.Network/virtualNetworks/peer/action",
-      "Microsoft.Network/virtualNetworks/subnets/*",
+      "Microsoft.Network/virtualNetworks/subnets/delete",
+      "Microsoft.Network/virtualNetworks/subnets/join/action",
+      "Microsoft.Network/virtualNetworks/subnets/read",
+      "Microsoft.Network/virtualNetworks/subnets/write",
       "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/write",
       "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/delete",
       "Microsoft.Network/virtualNetworks/write",
       "Microsoft.Network/virtualNetworkGateways/delete",
       "Microsoft.Network/virtualNetworkGateways/read",
       "Microsoft.Network/virtualNetworkGateways/write",
-      "Microsoft.Resources/subscriptions/resourcegroups/*"
+      "Microsoft.Resources/subscriptions/locations/read",
+      "Microsoft.Resources/subscriptions/resourcegroups/delete",
+      "Microsoft.Resources/subscriptions/resourcegroups/read",
+      "Microsoft.Resources/subscriptions/resourcegroups/write",
+      "Microsoft.Compute/virtualMachines/extensions/write",
+      "Microsoft.Compute/virtualMachines/extensions/delete"
     ]
     not_actions = []
   }
@@ -67,7 +89,7 @@ resource "azurerm_role_definition" "this" {
 }
 
 resource "azuread_application" "this" {
-  count        = var.create_sa ? 1 : 0
+  count = var.create_sa ? 1 : 0
 
   display_name = var.name
   owners = [
@@ -76,7 +98,7 @@ resource "azuread_application" "this" {
 }
 
 resource "azuread_service_principal" "this" {
-  count     = var.create_sa ? 1 : 0
+  count = var.create_sa ? 1 : 0
 
   client_id = azuread_application.this[0].client_id
   owners = [
@@ -85,19 +107,18 @@ resource "azuread_service_principal" "this" {
 }
 
 resource "azuread_service_principal_password" "this" {
-  count                = var.create_sa ? 1 : 0
+  count = var.create_sa ? 1 : 0
 
   service_principal_id = azuread_service_principal.this[0].id
-  end_date_relative    = var.end_date_relative
-  end_date             = var.end_date
+  end_date             = local.sp_password_end_date
 }
 
 resource "azurerm_role_assignment" "this" {
-  count                = var.create_sa ? 1 : 0
+  count = var.create_sa ? 1 : 0
 
-  scope                = data.azurerm_subscription.primary.id
-  role_definition_id   = azurerm_role_definition.this[0].role_definition_resource_id
-  principal_id         = azuread_service_principal.this[0].id
+  scope              = data.azurerm_subscription.primary.id
+  role_definition_id = azurerm_role_definition.this[0].role_definition_resource_id
+  principal_id       = azuread_service_principal.this[0].id
 }
 
 resource "volterra_cloud_credentials" "this" {
@@ -106,11 +127,11 @@ resource "volterra_cloud_credentials" "this" {
   azure_client_secret {
     client_id = var.create_sa ? azuread_application.this[0].client_id : var.azure_client_id
     client_secret {
-        clear_secret_info {
-            url = "string:///${base64encode(var.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret)}"
-        }
+      clear_secret_info {
+        url = "string:///${base64encode(var.create_sa ? azuread_service_principal_password.this[0].value : var.azure_client_secret)}"
+      }
     }
-    subscription_id = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "")  : var.azure_subscription_id
+    subscription_id = var.create_sa ? replace(data.azurerm_subscription.primary.id, "//subscriptions//", "") : var.azure_subscription_id
     tenant_id       = var.create_sa ? data.azuread_client_config.current.tenant_id : var.azure_tenant_id
   }
 }
