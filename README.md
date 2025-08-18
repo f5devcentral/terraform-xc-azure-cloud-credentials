@@ -2,6 +2,8 @@
 
 This Terraform module provisions Azure Cloud Credentials in F5 Distributed Cloud (XC). It creates an Azure Service Principal, Application, Role Definition with required permissions, along with a Cloud Credentials object in XC Cloud.
 
+> **Note**: This module is developed and maintained by the [F5 DevCentral](https://github.com/f5devcentral) community. You can use this module as an example for your own development projects.
+
 ## Requirements
 
 | Name                                                                                                                 | Version   |
@@ -44,16 +46,16 @@ module "azure_cloud_credentials" {
 
 ## Inputs
 
-| Name                  | Description                                                                                                                                                                        | Type          | Default | Required |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------- | :------: |
-| name                  | Cloud Credentials name                                                                                                                                                             | `string`      | `""`    |    no    |
-| create_sa             | Create a new Service Principal                                                                                                                                                     | `bool`        | `false` |    no    |
-| azure_subscription_id | Existing Azure Subscription ID                                                                                                                                                     | `string`      | `null`  |    no    |
-| azure_tenant_id       | Existing Azure Tenant ID                                                                                                                                                           | `string`      | `null`  |    no    |
-| azure_client_id       | Existing Azure Service Principal Application ID                                                                                                                                    | `string`      | `null`  |    no    |
-| azure_client_secret   | Existing Azure Service Principal Password                                                                                                                                          | `string`      | `null`  |    no    |
-| end_date              | The absolute end date until which the password is valid, formatted as an RFC3339 date string (e.g. 2218-01-01T01:02:03Z). Changing this field forces a new resource to be created. | `string`      | `null`  |    no    |
-| tags                  | A map of tags to add to all resources                                                                                                                                              | `map(string)` | `{}`    |    no    |
+| Name                  | Description                                                                                                                                                                        | Type          | Default |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
+| name                  | Cloud Credentials name                                                                                                                                                             | `string`      | `""`    |
+| create_sa             | Create a new Service Principal                                                                                                                                                     | `bool`        | `false` |
+| azure_subscription_id | Existing Azure Subscription ID                                                                                                                                                     | `string`      | `null`  |
+| azure_tenant_id       | Existing Azure Tenant ID                                                                                                                                                           | `string`      | `null`  |
+| azure_client_id       | Existing Azure Service Principal Application ID                                                                                                                                    | `string`      | `null`  |
+| azure_client_secret   | Existing Azure Service Principal Password                                                                                                                                          | `string`      | `null`  |
+| end_date              | The absolute end date until which the password is valid, formatted as an RFC3339 date string (e.g. 2218-01-01T01:02:03Z). Changing this field forces a new resource to be created. | `string`      | `null`  |
+| tags                  | A map of tags to add to all resources                                                                                                                                              | `map(string)` | `{}`    |
 
 ## Outputs
 

@@ -47,6 +47,8 @@ resource "azurerm_role_definition" "this" {
       "Microsoft.Network/routeTables/delete",
       "Microsoft.Network/routeTables/join/action",
       "Microsoft.Network/routeTables/write",
+      "Microsoft.Network/routeTables/routes/delete",
+      "Microsoft.Network/routeTables/routes/write",
       "Microsoft.Network/virtualHubs/delete",
       "Microsoft.Network/virtualHubs/bgpConnections/delete",
       "Microsoft.Network/virtualHubs/bgpConnections/read",
@@ -90,6 +92,7 @@ resource "azuread_application" "this" {
   owners = [
     data.azuread_client_config.current.object_id,
   ]
+  tags = values(var.tags)
 }
 
 resource "azuread_service_principal" "this" {
@@ -113,7 +116,7 @@ resource "azurerm_role_assignment" "this" {
 
   scope              = data.azurerm_subscription.primary.id
   role_definition_id = azurerm_role_definition.this[0].role_definition_resource_id
-  principal_id       = azuread_service_principal.this[0].id
+  principal_id       = azuread_service_principal.this[0].object_id
 }
 
 resource "volterra_cloud_credentials" "this" {

@@ -17,7 +17,7 @@ provider "azuread" {
 module "azure_cloud_credentials" {
   source = "../.."
 
-  name                  = "azure-tf-demo-creds"
+  name                  = "azure-existing-creds"
   azure_subscription_id = var.azure_subscription_id
   azure_tenant_id       = var.azure_tenant_id
   azure_client_id       = var.azure_client_id
