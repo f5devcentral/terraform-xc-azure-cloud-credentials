@@ -4,13 +4,8 @@ data "azurerm_subscription" "primary" {}
 
 locals {
   # Compute an absolute end date for the SP password.
-  # Prefer an explicit end_date if provided; otherwise, if a relative duration is provided, add it to now.
-  # Falls back to one year (8766h) if neither is set.
-  sp_password_end_date = (
-    var.end_date != null ? var.end_date : (
-      var.end_date_relative != null ? timeadd(timestamp(), var.end_date_relative) : timeadd(timestamp(), "8766h")
-    )
-  )
+  # Use explicit end_date if provided; otherwise, default to one year from now.
+  sp_password_end_date = var.end_date != null ? var.end_date : timeadd(timestamp(), "8766h")
 }
 
 resource "azurerm_role_definition" "this" {

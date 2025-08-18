@@ -5,7 +5,6 @@ provider "volterra" {
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = "true"
 
   subscription_id = var.azure_subscription_id
   tenant_id       = var.azure_tenant_id
